@@ -7,6 +7,7 @@ import { Entypo } from '@expo/vector-icons';
 import { Background } from '../../components/Background';
 import { Heading } from '../../components/Heading';
 import { DuoCard, DuoCardProps } from '../../components/DuoCard';
+import { DuoMatch } from '../../components/DuoMatch';
 
 import { GameParams } from '../../@types/navigation';
 
@@ -18,6 +19,7 @@ import logoImg from "../../assets/logo-nlw-esports.png";
 
 export function Game() {
     const [duos, setDuos] = useState<DuoCardProps[]>([]);
+    const [discordDuoSelected, setDiscordDuoSelected] = useState('');
 
     const route = useRoute();
     const navigation = useNavigation();
@@ -34,6 +36,13 @@ export function Game() {
             .then(data => setDuos(data))
             .catch(error => console.log(error));
     }, []);
+
+    async function getDiscordUser(adsId: string) {
+        await fetch(`http://192.168.1.11:3333/ads/${adsId}/discord`)
+            .then(response => response.json())
+            .then(data => setDiscordDuoSelected(data.discord))
+            .catch(error => console.log(error));
+    }
 
     return (
         <Background>
@@ -72,7 +81,7 @@ export function Game() {
                     renderItem={({ item }) => (
                         <DuoCard
                             data={item}
-                            onConnect={() => { }}
+                            onConnect={() => getDiscordUser(item.id)}
                         />
                     )}
                     horizontal
@@ -84,6 +93,12 @@ export function Game() {
                             Não há anúncios publicados ainda.
                         </Text>
                     )}
+                />
+
+                <DuoMatch
+                    visible={discordDuoSelected.length > 0}
+                    discord={discordDuoSelected}
+                    onClose={() => setDiscordDuoSelected('')}
                 />
             </SafeAreaView>
         </Background>
